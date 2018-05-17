@@ -12542,11 +12542,11 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Users\\ainaba\\Desktop\\Azure 入門\\Repo\\azure-getstart\\source\\DemoApps\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Users\\ainaba\\Source\\azure-getstart\\source\\DemoApps\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\ainaba\\Desktop\\Azure 入門\\Repo\\azure-getstart\\source\\DemoApps\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Users\\ainaba\\Source\\azure-getstart\\source\\DemoApps\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\ainaba\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ainaba\\Desktop\\Azure 入門\\Repo\\azure-getstart\\source\\DemoApps\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Users\\ainaba\\Source\\azure-getstart\\source\\DemoApps\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
