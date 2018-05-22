@@ -9,3 +9,14 @@ C:\Users\ainaba\Desktop\Azure 入門\Repo\azure-getstart\source\DemoApps\WebAppl
 C:\Users\ainaba\Desktop\Azure 入門\Repo\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.AssemblyInfo.cs
 C:\Users\ainaba\Desktop\Azure 入門\Repo\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.dll
 C:\Users\ainaba\Desktop\Azure 入門\Repo\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.pdb
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\bin\Debug\netcoreapp2.0\WebApplication1.deps.json
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\bin\Debug\netcoreapp2.0\WebApplication1.runtimeconfig.json
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\bin\Debug\netcoreapp2.0\WebApplication1.runtimeconfig.dev.json
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\bin\Debug\netcoreapp2.0\WebApplication1.dll
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\bin\Debug\netcoreapp2.0\WebApplication1.pdb
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.csprojAssemblyReference.cache
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.csproj.CoreCompileInputs.cache
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.AssemblyInfoInputs.cache
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.AssemblyInfo.cs
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.dll
+C:\Users\ainaba\Source\azure-getstart\source\DemoApps\WebApplication1\obj\Debug\netcoreapp2.0\WebApplication1.pdb
