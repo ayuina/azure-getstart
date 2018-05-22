@@ -19,6 +19,7 @@ namespace WebApplication1.Pages
         }
 
         public List<Employee> Employees = new List<Employee>();
+        public Exception Error = null;
 
         private IConfiguration config;
         public IndexModel(IConfiguration config)
@@ -28,7 +29,19 @@ namespace WebApplication1.Pages
         
         public void OnGet()
         {
-            string constr = config.GetConnectionString("connection1") ;
+            try
+            {
+                GetFromDatabase();
+            }
+            catch (Exception ex)
+            {
+                this.Error = ex;
+            }
+        }
+
+        private void GetFromDatabase()
+        {
+            string constr = config.GetConnectionString("connection1");
             using (var con = new SqlConnection(constr))
             {
                 using (var cmd = con.CreateCommand())
@@ -40,13 +53,14 @@ namespace WebApplication1.Pages
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
-                            while(reader.Read())
+                            while (reader.Read())
                             {
-                                this.Employees.Add(new Employee() {
-                                    EmployeeId = reader.GetInt32( reader.GetOrdinal("employeeid")),
-                                    Firstname = reader.GetString( reader.GetOrdinal("firstname")),
-                                    Lastname = reader.GetString( reader.GetOrdinal("lastname"))
-                                    });
+                                this.Employees.Add(new Employee()
+                                {
+                                    EmployeeId = reader.GetInt32(reader.GetOrdinal("employeeid")),
+                                    Firstname = reader.GetString(reader.GetOrdinal("firstname")),
+                                    Lastname = reader.GetString(reader.GetOrdinal("lastname"))
+                                });
                             }
                         }
                     }

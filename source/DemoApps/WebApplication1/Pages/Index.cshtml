@@ -5,23 +5,36 @@
 }
 
 <div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(m => Model.Employees[0].EmployeeId)</th>
-                <th>@Html.DisplayNameFor(m => Model.Employees[0].Firstname)</th>
-                <th>@Html.DisplayNameFor(m => Model.Employees[0].Lastname)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Employees)
-            {
+
+    @if (Model.Error == null)
+    {
+        <h1>Employee Table</h1>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@Html.DisplayFor(m => item.EmployeeId)</td>
-                    <td>@Html.DisplayFor(m => item.Firstname)</td>
-                    <td>@Html.DisplayFor(m => item.Lastname)</td>
+                    <th>@Html.DisplayNameFor(m => Model.Employees[0].EmployeeId)</th>
+                    <th>@Html.DisplayNameFor(m => Model.Employees[0].Firstname)</th>
+                    <th>@Html.DisplayNameFor(m => Model.Employees[0].Lastname)</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Employees)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.EmployeeId)</td>
+                        <td>@Html.DisplayFor(m => item.Firstname)</td>
+                        <td>@Html.DisplayFor(m => item.Lastname)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+
+        <div>
+            <h1>@Model.Error.Message</h1>
+            <pre> @Model.Error.ToString() </pre>
+        </div>
+    }
 </div>
