@@ -3,7 +3,29 @@
 @{
     ViewData["Title"] = "About";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@Model.Message</h3>
+<div>
+    <h2>現在の接続文字列</h2>
+    <h3>@Model.Message</h3>
+</div>
+<div>
+    <h2>環境変数</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (string key in Environment.GetEnvironmentVariables().Keys.OfType<string>().OrderBy(k => k))
+            {
+            <tr>
+                <td><span>@key</span></td>
+                <td><span>@(Environment.GetEnvironmentVariable(key))</span></td>
+            </tr>
 
+            }
+        </tbody>
+    </table>
+</div>
 <p>Use this area to provide additional information.</p>
