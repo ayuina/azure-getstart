@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 
 namespace WebApplication1.Pages
 {
@@ -18,10 +19,16 @@ namespace WebApplication1.Pages
         }
 
         public List<Employee> Employees = new List<Employee>();
+
+        private IConfiguration config;
+        public IndexModel(IConfiguration config)
+        {
+            this.config = config;
+        }
         
         public void OnGet()
         {
-            var constr = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=demo0517;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            string constr = config.GetConnectionString("connection1") ;
             using (var con = new SqlConnection(constr))
             {
                 using (var cmd = con.CreateCommand())
