@@ -3,3 +3,6 @@
 ################################################################################
 
 /source/DemoApps/.vs/DemoApps/v15
+/source/DemoApps/WebApplication1/bin/Debug/netcoreapp2.0/publish
+/source/DemoApps/WebApplication1/bin/Release/netcoreapp2.0
+/source/DemoApps/WebApplication1/obj
