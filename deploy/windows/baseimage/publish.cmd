@@ -5,3 +5,7 @@ cd %~dp0
 docker build -t aspnetcore-iishosting .
 
 endlocal
+
+
+REM ================================================
+REM 

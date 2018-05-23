@@ -1,7 +1,6 @@
 FROM microsoft/aspnetcore-build as build-env
-RUN git clone https://github.com/ayuina/azure-getstart.git
 
 
-FROM build-env
+FROM aspnetcore-iishosting
 WORKDIR C:\\inetpub\\wwwroot
 ADD publish .

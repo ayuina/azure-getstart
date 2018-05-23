@@ -3,6 +3,6 @@
 ################################################################################
 
 /source/DemoApps/.vs/DemoApps/v15
-/source/DemoApps/WebApplication1/bin/
+/source/DemoApps/WebApplication1/bin
 /source/DemoApps/WebApplication1/obj
 /deploy/windows/**/publish
