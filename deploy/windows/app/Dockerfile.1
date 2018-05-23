@@ -1,6 +1,0 @@
-FROM microsoft/aspnetcore-build as build-env
-
-
-FROM aspnetcore-iishosting
-WORKDIR C:\\inetpub\\wwwroot
-ADD publish .
