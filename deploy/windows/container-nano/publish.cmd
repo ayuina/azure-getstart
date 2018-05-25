@@ -11,6 +11,6 @@ REM docker run -d -e 'ConnectionStrings:connection1=Server=...;Database=...;User
 REM docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" containerId
 
 REM ================================================
-REM docker tag aspnetcore-demoapp:iis ayuina/aspnetcore-demoapp:iis
+REM docker tag aspnetcore-demoapp:nano ayuina/aspnetcore-demoapp:nano
 REM docker login
-REM docker push ayuina/aspnetcore-demoapp:iis
+REM docker push ayuina/aspnetcore-demoapp:nano
