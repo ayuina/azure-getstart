@@ -6,3 +6,4 @@ RUN dotnet publish c:\azure-getstart\source\DemoApps -f netcoreapp2.0 -r win-x64
 FROM aspnetcore-iishosting
 WORKDIR C:\\inetpub\\wwwroot
 COPY --from=build-env C:\\publish .
+ENV ConnectionStrings:connection1=hoge
