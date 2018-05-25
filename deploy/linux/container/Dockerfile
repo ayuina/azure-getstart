@@ -6,7 +6,7 @@ RUN dotnet publish ./azure-getstart/source/DemoApps -f netcoreapp2.0 -r linux-x6
 FROM microsoft/aspnetcore:2.0
 WORKDIR /app
 COPY --from=build-env /build/publish .
-ENV ConnectionStrings:connection1=hoge
+ENV ConnectionStrings__connection1=hoge
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 ENTRYPOINT [ "dotnet", "WebApplication1.dll" ]
