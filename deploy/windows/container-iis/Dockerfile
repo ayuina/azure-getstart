@@ -1,0 +1,22 @@
+FROM microsoft/aspnetcore-build as build-env
+RUN git clone https://github.com/ayuina/azure-getstart.git
+RUN dotnet publish c:\azure-getstart\source\DemoApps -f netcoreapp2.0 -r win-x64 --self-contained -o c:\publish
+
+
+###########################################
+FROM microsoft/iis
+
+#Deploy Application
+WORKDIR C:\\inetpub\\wwwroot
+COPY --from=build-env C:\\publish .
+ENV ConnectionStrings:connection1=hoge
+
+#Install ASP.NET core Hosting Bundle Installer
+ADD ["https://download.microsoft.com/download/A/9/F/A9F8872C-48B2-41DB-8AAD-D5908D988592/DotNetCore.2.0.7-WindowsHosting.exe", "C:\\"] 
+RUN ["C:\\DotNetCore.2.0.7-WindowsHosting.exe", "/quiet", "/log", "log.txt"]
+RUN iisreset
+
+EXPOSE 80
+ENTRYPOINT ["C:\\ServiceMonitor.exe", "w3svc"]
+
+
