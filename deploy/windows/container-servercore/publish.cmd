@@ -3,7 +3,7 @@
 setlocal
 cd %~dp0
 
-docker build -t aspnetcore-demoapp .
+docker build -t aspnetcore-demoapp:servercore .
 
 endlocal
 
