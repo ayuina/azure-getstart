@@ -1,1 +1,1 @@
-FROM mssql-server-windows-developer
+FROM microsoft/mssql-server-windows-developer
