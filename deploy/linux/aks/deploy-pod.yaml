@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ayuina-demo-as-pod
+spec:
+  containers:
+  - name: aspnetcore-web
+    image: ayuina/aspnetcore-demoapp:linux
+    ports:
+    - containerPort: 80

@@ -1,0 +1,7 @@
+docker run -it microsoft/azure-cli
+
+az login
+az aks get-credentials -g poc0626-rg -n ainaba-aks01-cluster
+az aks install-cli
+
+kubectl
