@@ -2,19 +2,41 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "name": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the container group"
-            },
-            "defaultValue": "acidemo-containergroup"
-        },
         "dnsPrefix": {
             "type": "string",
             "maxLength": 50,
             "metadata": {
                 "description": "The DNS label for the public IP address. It must be lowercase. It should match the following regular expression, or it will raise an error: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$"
-            }
+            },
+            "defaultValue": "containerGroupDnsLabel"
+        },
+        "webAppImagePath":{
+            "type": "string",
+            "metadata": {
+                "description": "front web application container image"
+            },
+            "defaultValue": "ayuina/aspnetcore-demoapp:linux"
+        },
+        "servicePort": {
+            "type": "int",
+            "metadata": {
+                "description": "port number for http listen"
+            },
+            "defaultValue": 80
+        },
+        "sqldbConnectionStringKey":{
+            "type": "string",
+            "metadata": {
+                "description": "override ConnectionsString Key on appsettings.json"
+            },
+            "defaultValue": "ConnectionStrings__connection1"
+        },
+        "sqldbConnectionString":{
+            "type": "string",
+            "metadata": {
+                "description": "ConnectionsString for backend sql database"
+            },
+            "defaultValue": "Server=serverName;Database=databaseName;User Id=sqluser;Password=p@ssw0rd;"
         },
         "cpuCores": {
             "type": "string",
@@ -42,34 +64,35 @@
         }
     },
     "variables": {
-        "publicdnsname": "[concat(parameters('dnsPrefix'),'.',resourceGroup().location,'.azurecontainer.io')]"
+        "ASPNETCORE_URLS":"[concat('http://+:',parameters('servicePort'))]",
+        "name":"[concat(parameters('dnsPrefix'),'-cg')]"
     },
     "resources": [
         {
-            "name": "[parameters('name')]",
+            "name": "[variables('name')]",
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2018-02-01-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "containers": [
                     {
-                        "name": "[parameters('name')]",
+                        "name": "[concat(variables('name'), '-web')]",
                         "properties": {
                             "environmentVariables": [
                                 {
                                     "name": "ASPNETCORE_URLS",
-                                    "value": "http://+:80"
+                                    "value": "[variables('ASPNETCORE_URLS')]"
                                 },
                                 {
-                                    "name": "ConnectionStrings__connection1",
-                                    "value": "aci-envval-connection-strings"
+                                    "name": "[parameters('sqldbConnectionStringKey')]",
+                                    "value": "[parameters('sqldbConnectionString')]"
                                 }
                             ],
-                            "image": "ayuina/aspnetcore-demoapp:linux",
+                            "image": "[parameters('webAppImagePath')]",
                             "ports": [
                                 {
                                     "protocol": "TCP",
-                                    "port": 80
+                                    "port": "[parameters('servicePort')]"
                                 }
                             ],
                             "resources": {
@@ -87,7 +110,7 @@
                     "ports": [
                         {
                             "protocol": "TCP",
-                            "port": 80
+                            "port": "[parameters('servicePort')]"
                         }
                     ],
                     "dnsNameLabel": "[parameters('dnsPrefix')]"
@@ -98,7 +121,7 @@
     "outputs": {
         "containerIPAddressFqdn": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', parameters('name'))).ipAddress.fqdn]"
+            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('name'))).ipAddress.fqdn]"
         }
     }
 }
