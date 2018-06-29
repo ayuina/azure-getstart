@@ -1,6 +1,6 @@
 $month = [DateTime]::Now.Month
 $day = [datetime]::Now.Day
-$rgName = "demo-{0:MMddHHmm}-iaas-rg" -f [DateTime]::Now
+$rgName = "demo-{0:MMdd}-iaas-rg" -f [DateTime]::Now
 
 function Main()
 {
