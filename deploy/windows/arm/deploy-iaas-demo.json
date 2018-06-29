@@ -222,7 +222,7 @@
                         "name": "ipconfig1",
                         "properties": {
                             "subnet": {
-                                "id": "[concat( resourceGroup().id, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetName'), '/subnets/webSubnet')]"
+                                "id": "[concat( resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '/subnets/webSubnet')]"
                             },
                             "loadBalancerBackendAddressPools": [
                                 {

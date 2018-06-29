@@ -1,6 +1,8 @@
-$month = [DateTime]::Now.Month
-$day = [datetime]::Now.Day
-$rgName = "demo-{0:MMdd}-iaas-rg" -f [DateTime]::Now
+$now = [DateTime]::Now
+$month = $now.Month
+$day = $now.Day
+$rgName = "demo-{0:MMddHHmm}-iaas-rg" -f $now
+$deploymentname = "deploy-iaas-demo-{0:yyyyMMdd}-{0:HHmmss}" -f $now
 
 function Main()
 {
@@ -10,7 +12,7 @@ function Main()
         $rg = New-AzureRmResourceGroup -Name $rgName -Location "japaneast"
     }
     write-host "deploying to $rgName"
-    New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile ".\deploy-iaas-demo.json"
+    New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile ".\deploy-iaas-demo.json" -Name $deploymentname
     
 }
 
