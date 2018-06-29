@@ -2,28 +2,28 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "prefix":{
+        "prefix": {
             "type": "string",
             "defaultValue": "demo",
             "metadata": {
                 "description": ""
             }
         },
-        "month":{
+        "month": {
             "type": "int",
             "defaultValue": 3,
             "metadata": {
                 "description": ""
             }
         },
-        "day":{
+        "day": {
             "type": "int",
             "defaultValue": 4,
             "metadata": {
                 "description": ""
             }
         },
-        "location" :{
+        "location": {
             "type": "string",
             "defaultValue": "japaneast",
             "metadata": {
@@ -36,44 +36,44 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "webCount" :{
+        "webCount": {
             "type": "int",
             "defaultValue": 4,
             "metadata": {
                 "description": ""
             }
         },
-        "webSku":{
+        "webSku": {
             "type": "string",
             "defaultValue": "Standard_D2s_v3",
             "metadata": {
                 "description": ""
             }
         },
-        "dbCount" :{
+        "dbCount": {
             "type": "int",
             "defaultValue": 2,
             "metadata": {
                 "description": ""
             }
         },
-        "dbSku":{
+        "dbSku": {
             "type": "string",
-            "defaultValue": "Standard_D4s_v3",
+            "defaultValue": "Standard_D2s_v3",
             "metadata": {
                 "description": ""
             }
         }
-
     },
     "variables": {
-        "namePrefix":"[concat(parameters('prefix'), padLeft(parameters('month'), 2, '0') ,padLeft(parameters('day'), 2, '0')) ]",
-        "vnetName":"[concat(variables('namePrefix'), '-vnet')]",
-        "vnetAddressPrefix":"[concat('10.', parameters('month'),'.',parameters('day'),'.0/24')]",
-        "webSubnetAddressPrefix":"[concat('10.', parameters('month'),'.',parameters('day'),'.0/26')]",
-        "dbSubnetAddressPrefix":"[concat('10.', parameters('month'),'.',parameters('day'),'.64/26')]",
-        "webServerPrefix" : "[concat(variables('namePrefix'), '-web')]",
-        "dbServerPrefix" : "[concat(variables('namePrefix'), '-db')]"
+        "namePrefix": "[concat(parameters('prefix'), padLeft(parameters('month'), 2, '0') ,padLeft(parameters('day'), 2, '0')) ]",
+        "vnetName": "[concat(variables('namePrefix'), '-vnet')]",
+        "vnetAddressPrefix": "[concat('10.', parameters('month'),'.',parameters('day'),'.0/24')]",
+        "webSubnetAddressPrefix": "[concat('10.', parameters('month'),'.',parameters('day'),'.0/26')]",
+        "dbSubnetAddressPrefix": "[concat('10.', parameters('month'),'.',parameters('day'),'.64/26')]",
+        "webServerPrefix": "[concat(variables('namePrefix'), '-web')]",
+        "dbServerPrefix": "[concat(variables('namePrefix'), '-db')]",
+        "lbPrefix": "[concat(variables('namePrefix'), '-lb')]"
     },
     "resources": [
         {
@@ -100,10 +100,78 @@
                             "addressPrefix": "[variables('dbSubnetAddressPrefix')]"
                         }
                     }
-
                 ]
             }
         },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[concat(variables('lbPrefix'),'-pip')]",
+            "apiVersion": "2018-02-01",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            }
+        },
+        {
+            "name": "[variables('lbPrefix')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2018-02-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('lbPrefix'), '-pip')]"
+            ],
+
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat( variables('lbPrefix'), '-pip') )]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "LoadBalancerBackEnd"
+                    }
+                ]
+            },
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            }
+        },
+        {
+            "copy": {
+                "name": "lbNatLoop",
+                "count": "[parameters('webCount')]"
+            },
+            "apiVersion": "2018-02-01",
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+            "name": "[concat(variables('lbPrefix'), '/', 'RDP-NAT', copyIndex())]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', variables('lbPrefix'))]"
+            ],
+            "properties": {
+                "frontendIPConfiguration": {
+                    "id": "[concat( resourceId('Microsoft.Network/loadBalancers', variables('lbPrefix')), '/frontendIPConfigurations/LoadBalancerFrontEnd')]"
+                },
+                "protocol": "tcp",
+                "frontendPort": "[copyIndex(33890)]",
+                "backendPort": 3389,
+                "enableFloatingIP": false
+            }
+        },
+
         {
             "copy": {
                 "name": "webniccopy",
@@ -114,7 +182,9 @@
             "apiVersion": "2016-09-01",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('lbPrefix'))]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('lbPrefix'), '/inboundNatRules/RDP-NAT', copyIndex())]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -124,6 +194,16 @@
                             "subnet": {
                                 "id": "[concat( resourceGroup().id, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetName'), '/subnets/webSubnet')]"
                             },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbPrefix')), '/backendAddressPools/LoadBalancerBackend') ]"
+                                }
+                            ],
+                            "loadBalancerInboundNatRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbPrefix')), '/inboundNatRules/RDP-NAT', copyindex()) ]"
+                                }
+                            ],
                             "privateIPAllocationMethod": "Dynamic"
                         }
                     }
@@ -166,16 +246,16 @@
                     "vmSize": "[parameters('webSku')]"
                 },
                 "storageProfile": {
-                    "imageReference": { 
-                        "publisher": "MicrosoftWindowsServer", 
-                        "offer": "WindowsServer", 
-                        "sku": "2012-R2-Datacenter", 
-                        "version": "latest" 
-                    }, 
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2012-R2-Datacenter",
+                        "version": "latest"
+                    },
                     "osDisk": {
                         "name": "[concat( variables('webServerPrefix'), padLeft(copyIndex(),2,'0'), '-osdisk' )]",
                         "createOption": "FromImage",
-                        "caching": "ReadWrite", 
+                        "caching": "ReadWrite",
                         "managedDisk": {
                             "storageAccountType": "Premium_LRS"
                         }
@@ -188,13 +268,11 @@
                         }
                     ]
                 },
-                "availabilitySet":{
+                "availabilitySet": {
                     "id": "[resourceId('Microsoft.Compute/availabilitySets', concat( variables('webServerPrefix'), '-as') )]"
                 }
             }
         },
-
-
         {
             "copy": {
                 "name": "dbniccopy",
@@ -257,16 +335,16 @@
                     "vmSize": "[parameters('dbSku')]"
                 },
                 "storageProfile": {
-                    "imageReference": { 
-                        "publisher": "MicrosoftWindowsServer", 
-                        "offer": "WindowsServer", 
-                        "sku": "2012-R2-Datacenter", 
-                        "version": "latest" 
-                    }, 
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2012-R2-Datacenter",
+                        "version": "latest"
+                    },
                     "osDisk": {
                         "name": "[concat( variables('dbServerPrefix'), padLeft(copyIndex(),2,'0'), '-osdisk' )]",
                         "createOption": "FromImage",
-                        "caching": "ReadWrite", 
+                        "caching": "ReadWrite",
                         "managedDisk": {
                             "storageAccountType": "Premium_LRS"
                         }
@@ -279,29 +357,12 @@
                         }
                     ]
                 },
-                "availabilitySet":{
+                "availabilitySet": {
                     "id": "[resourceId('Microsoft.Compute/availabilitySets', concat( variables('dbServerPrefix'), '-as') )]"
                 }
             }
         }
-
-
-        
     ],
     "outputs": {
-        "vnet": {
-            "type": "string",
-            "value": "[variables('vnetAddressPrefix')]"
-        },
-        "websubnet": {
-            "type": "string",
-            "value": "[variables('webSubnetAddressPrefix')]"
-        },
-        "dbsubnet": {
-            "type": "string",
-            "value": "[variables('dbSubnetAddressPrefix')]"
-        }
-
-
     }
 }

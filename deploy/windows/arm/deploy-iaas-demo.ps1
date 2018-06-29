@@ -9,6 +9,7 @@ function Main()
     {
         $rg = New-AzureRmResourceGroup -Name $rgName -Location "japaneast"
     }
+    write-host "deploying to $rgName"
     New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile ".\deploy-iaas-demo.json"
     
 }
