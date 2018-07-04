@@ -2,7 +2,24 @@
 setlocal
 
 cd %~dp0
-docker build -t aspnetcore-demoapp:linux .
+set repo=ayuina
+set timestamp=%DATE:~-10,4%%DATE:~-5,2%%DATE:~-2%-%TIME:~0,2%%TIME:~3,2%%TIME:~6,2%
+set tag=aspnetcore-demoapp-web-linux:%timestamp%
+set latest=aspnetcore-demoapp-web-linux:latest
+
+echo building web app as %tag%
+docker build -t %tag% .
+
+echo publishing web app to %repo%/%tag%
+docker login
+if not %errorlevel% == 0 (
+    exit /b %errorlevel%
+)
+
+docker tag %tag% %repo%/%tag%
+docker push %repo%/%tag%
+docker tag %tag% %repo%/%latest%
+docker push %repo%/%latest%
 
 endlocal
 
