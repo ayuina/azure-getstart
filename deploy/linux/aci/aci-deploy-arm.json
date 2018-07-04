@@ -1,0 +1,128 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dnsPrefix": {
+            "type": "string",
+            "maxLength": 50,
+            "metadata": {
+                "description": "The DNS label for the public IP address. It must be lowercase. It should match the following regular expression, or it will raise an error: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$"
+            },
+            "defaultValue": "aci-demo"
+        },
+        "webAppImagePath":{
+            "type": "string",
+            "metadata": {
+                "description": "front web application container image"
+            },
+            "defaultValue": "ayuina/aspnetcore-demoapp-web-linux:latest"
+        },
+        "servicePort": {
+            "type": "int",
+            "metadata": {
+                "description": "port number for http listen"
+            },
+            "defaultValue": 80
+        },
+        "sqldbConnectionStringKey":{
+            "type": "string",
+            "metadata": {
+                "description": "override ConnectionsString Key on appsettings.json"
+            },
+            "defaultValue": "ConnectionStrings__connection1"
+        },
+        "sqldbConnectionString":{
+            "type": "string",
+            "metadata": {
+                "description": "ConnectionsString for backend sql database"
+            },
+            "defaultValue": "Server=serverName;Database=databaseName;User Id=sqluser;Password=p@ssw0rd;"
+        },
+        "cpuCores": {
+            "type": "string",
+            "metadata": {
+                "description": "The number of CPU cores to allocate to the container"
+            },
+            "defaultValue": "1.0"
+        },
+        "memoryInGb": {
+            "type": "string",
+            "metadata": {
+                "description": "The amount of memory to allocate to the container in gigabytes. Provide a minimum of 2 as he container will include SQL Server and NAV NST"
+            },
+            "defaultValue": "2.0"
+        },
+        "location1": {
+            "type": "string",
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Location for all resources."
+            },
+            "allowedValues": [
+                "westus","eastus","westeurope","westus2","northeurope","southeastasia"
+            ]
+        }
+    },
+    "variables": {
+        "ASPNETCORE_URLS":"[concat('http://+:',parameters('servicePort'))]",
+        "cgname":"[concat(parameters('dnsPrefix'),'-cg')]",
+        "dnslabel1":"[concat(variables('cgname'), '-', parameters('location1'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('cgname')]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-02-01-preview",
+            "location": "[parameters('location1')]",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[concat(parameters('dnsPrefix'), '-web')]",
+                        "properties": {
+                            "image": "[parameters('webAppImagePath')]",
+                            "environmentVariables": [
+                                {
+                                    "name": "ASPNETCORE_URLS",
+                                    "value": "[variables('ASPNETCORE_URLS')]"
+                                },
+                                {
+                                    "name": "[parameters('sqldbConnectionStringKey')]",
+                                    "value": "[parameters('sqldbConnectionString')]"
+                                }
+                            ],
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": "[parameters('servicePort')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "cpu": "[parameters('cpuCores')]",
+                                    "memoryInGB": "[parameters('memoryInGb')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "osType": "Linux",
+                "ipAddress": {
+                    "type": "Public",
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": "[parameters('servicePort')]"
+                        }
+                    ],
+                    "dnsNameLabel": "[variables('dnslabel1')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "containerIPAddressFqdn": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('cgname'))).ipAddress.fqdn]"
+        }
+    }
+}
