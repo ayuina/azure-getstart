@@ -86,9 +86,9 @@
     "variables": {
         "ASPNETCORE_URLS":"[concat('http://+:',parameters('servicePort'))]",
         "cgname":"[concat(parameters('dnsPrefix'),'-cg')]",
-        "dnslabel1":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location1'))]",
-        "dnslabel2":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location2'))]",
-        "dnslabel3":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location3'))]"
+        "dnslabel1":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name, parameters('location1')))]",
+        "dnslabel2":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name, parameters('location2')))]",
+        "dnslabel3":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name, parameters('location3')))]"
     },
     "resources": [
         {
