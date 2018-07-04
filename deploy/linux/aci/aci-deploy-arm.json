@@ -61,16 +61,38 @@
             "allowedValues": [
                 "westus","eastus","westeurope","westus2","northeurope","southeastasia"
             ]
+        },
+        "location2": {
+            "type": "string",
+            "defaultValue": "southeastasia",
+            "metadata": {
+                "description": "Location for all resources."
+            },
+            "allowedValues": [
+                "westus","eastus","westeurope","westus2","northeurope","southeastasia"
+            ]
+        },
+        "location3": {
+            "type": "string",
+            "defaultValue": "northeurope",
+            "metadata": {
+                "description": "Location for all resources."
+            },
+            "allowedValues": [
+                "westus","eastus","westeurope","westus2","northeurope","southeastasia"
+            ]
         }
     },
     "variables": {
         "ASPNETCORE_URLS":"[concat('http://+:',parameters('servicePort'))]",
         "cgname":"[concat(parameters('dnsPrefix'),'-cg')]",
-        "dnslabel1":"[concat(variables('cgname'), '-', parameters('location1'))]"
+        "dnslabel1":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location1'))]",
+        "dnslabel2":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location2'))]",
+        "dnslabel3":"[concat(variables('cgname'), '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('location3'))]"
     },
     "resources": [
         {
-            "name": "[variables('cgname')]",
+            "name": "[variables('dnslabel1')]",
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2018-02-01-preview",
             "location": "[parameters('location1')]",
@@ -117,12 +139,119 @@
                     "dnsNameLabel": "[variables('dnslabel1')]"
                 }
             }
+        },
+        {
+            "name": "[variables('dnslabel2')]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-02-01-preview",
+            "location": "[parameters('location2')]",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[concat(parameters('dnsPrefix'), '-web')]",
+                        "properties": {
+                            "image": "[parameters('webAppImagePath')]",
+                            "environmentVariables": [
+                                {
+                                    "name": "ASPNETCORE_URLS",
+                                    "value": "[variables('ASPNETCORE_URLS')]"
+                                },
+                                {
+                                    "name": "[parameters('sqldbConnectionStringKey')]",
+                                    "value": "[parameters('sqldbConnectionString')]"
+                                }
+                            ],
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": "[parameters('servicePort')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "cpu": "[parameters('cpuCores')]",
+                                    "memoryInGB": "[parameters('memoryInGb')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "osType": "Linux",
+                "ipAddress": {
+                    "type": "Public",
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": "[parameters('servicePort')]"
+                        }
+                    ],
+                    "dnsNameLabel": "[variables('dnslabel2')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('dnslabel3')]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-02-01-preview",
+            "location": "[parameters('location3')]",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[concat(parameters('dnsPrefix'), '-web')]",
+                        "properties": {
+                            "image": "[parameters('webAppImagePath')]",
+                            "environmentVariables": [
+                                {
+                                    "name": "ASPNETCORE_URLS",
+                                    "value": "[variables('ASPNETCORE_URLS')]"
+                                },
+                                {
+                                    "name": "[parameters('sqldbConnectionStringKey')]",
+                                    "value": "[parameters('sqldbConnectionString')]"
+                                }
+                            ],
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": "[parameters('servicePort')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "cpu": "[parameters('cpuCores')]",
+                                    "memoryInGB": "[parameters('memoryInGb')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "osType": "Linux",
+                "ipAddress": {
+                    "type": "Public",
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": "[parameters('servicePort')]"
+                        }
+                    ],
+                    "dnsNameLabel": "[variables('dnslabel3')]"
+                }
+            }
         }
     ],
     "outputs": {
-        "containerIPAddressFqdn": {
+        "containerFqdn1": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('cgname'))).ipAddress.fqdn]"
+            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('dnslabel1'))).ipAddress.fqdn]"
+        },
+        "containerFqdn2": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('dnslabel2'))).ipAddress.fqdn]"
+        },
+        "containerFqdn3": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('dnslabel3'))).ipAddress.fqdn]"
         }
+        
     }
 }
