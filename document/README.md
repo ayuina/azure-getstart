@@ -2,6 +2,6 @@
 
 ## 目次
 
-- [IaaS編](./01_develop_webdb_on_iaas/README.md)
-- [PaaS編](./02_develop_webdb_on_paas/README.md)
+- [Azure IaaS で作る Web+DB システム](./01_develop_webdb_on_iaas/README.md)
+- [Azure PaaS で作る Web+DB システム](./02_develop_webdb_on_paas/README.md)
 
