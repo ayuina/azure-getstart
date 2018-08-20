@@ -8,3 +8,4 @@
 /deploy/windows/local/publish
 /deploy/windows/local/publish.zip
 
+/**/~$*.pptx
