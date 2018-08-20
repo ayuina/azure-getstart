@@ -1,0 +1,77 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefix": {
+            "type": "string",
+            "defaultValue": "demoMMdd",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "japaneast",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "adminUsername": {
+            "type": "string"
+        },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "webCount": {
+            "type": "int",
+            "defaultValue": 4,
+            "metadata": {
+                "description": ""
+            }
+        },
+        "webSku": {
+            "type": "string",
+            "defaultValue": "S1",
+            "allowedValues": [
+                "F1","D1","B1","B2","B3","S1","S2","S3"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "dbCount": {
+            "type": "int",
+            "defaultValue": 2,
+            "metadata": {
+                "description": ""
+            }
+        },
+        "dbSku": {
+            "type": "string",
+            "defaultValue": "Standard_D2s_v3",
+            "metadata": {
+                "description": ""
+            }
+        }
+    },
+    "variables": {
+        "location" : "[parameters('location')]",
+        "serverFarmName" : "[concat(parameters('prefix'), '-asp')]",
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2016-09-01",
+            "name": "[variables('serverFarmName')]",
+            "location": "[variables('location')]",
+            "sku": {
+                "Name": "[parameters('webSku')]",
+                "capacity":"[parameters('webCount')]"
+            },
+            "properties": {
+                "name": "[variables('serverFarmName')]"
+            }
+        }
+    ],
+    "outputs": {}
+}
