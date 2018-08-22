@@ -123,19 +123,25 @@ Azure 仮想マシンとしての構築が完了したら、仮想マシン内�
 Azureポータル上で仮想マシンの「パブリック IP アドレス」を確認し、リモートデスクトップクライアントのコンピュータ名として入力します。資格情報には構築時に入力したユーザーIDとパスワードを使用すると、通常のWindows サーバーのように操作が可能になります。
 
 #### IIS のインストール
-まずは Web サーバーとして構成するために IIS （Internet Information Service）をインストールします。PowerShell を起動して以下のコマンドを実行します。
+まずは Web サーバーとして構成するために IIS （Internet Information Service）をインストールします。まずPowerShell を起動して以下のコマンドを実行します。
 
 ```
 PS > Install-WindowsFeature -Name Web-Server
 ```
-インストールが完了したら正常に稼働していることを確認します。以下のコマンドを実行すると Internet Explorer が起動して IIS の初期画面が表示されます。
+インストールが完了したら正常に稼働していることを確認しましょう。以下のコマンドを実行すると Internet Explorer が起動して IIS の初期画面が表示されます。
 ```
 PS > start http://localhost
 ```
 ![Webサーバー構築完了](iis-startpage.png)
 
 #### ASP.NET のインストール
-次にアプリケーションサーバとして構成するためにミドルウェアの導入を行います。ここでは ASP.NET Core
+次にアプリケーションサーバとして構成するためにミドルウェアの導入を行います。ここでは ASP.NET Core ベースのアプリケーションを構築するとしてて、
+[こちら](https://www.microsoft.com/net/download/dotnet-core/runtime-2.0.7)
+から v2.0.7 の Windows 版 ASP.NET Core Runtime & Hosting Bundle をダウンロードおよびインストールします。
+インストールが完了したら念のため IIS を再起動しておきましょう。
+```
+PS > iisreset
+```
 
 
 #### アプリケーションのインストール
