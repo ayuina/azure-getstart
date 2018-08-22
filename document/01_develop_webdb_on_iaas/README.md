@@ -142,7 +142,7 @@ PS > start http://localhost
 #### ASP.NET のインストール
 次にアプリケーションサーバとして構成するためにミドルウェアの導入を行います。ここでは ASP.NET Core ベースのWebアプリケーションを構築するとしてて、
 [こちら](https://www.microsoft.com/net/download/dotnet-core/runtime-2.0.7)
-から v2.0.7 の Windows 版 ASP.NET Core Runtime & Hosting Bundle ！ダウンロードおよびインストールします。
+から v2.0.7 の Windows 版 ASP.NET Core Runtime & Hosting Bundle をダウンロードおよびインストールします。
 
 
 インストールが完了したら念のため IIS を再起動しておきましょう。
@@ -178,6 +178,16 @@ C:\intepub\wwwroot
 
 ![アプリ稼働確認](application-error.png)
 
+#### インターネットからアクセス
+
+セットアップした Web サーバーはパブリック IP アドレスが割り当てられているますが、仮想マシン作成時に設定したネットワークセキュリティグループはリモートデスクトップ接続用のプロトコルしか許可していません。
+ネットワークセキュリティグループにHTTP（ポート80）の受信許可を設定することで、インターネットに公開されたWebサーバーにすることができます。
+
+![NSGによるHTTP受信許可](./open-nsg-http.png)
+
+リモートデスクトップ接続に使用した IP アドレスを Web ブラウザに入力することで、下記のように同様のエラー画面を確認できます。
+
+![インターネット経由のアクセス](./webapp-from-internet.png)
 
 
 ### Web サーバー用 Linux 仮想マシンの構成
