@@ -115,24 +115,58 @@ SQL Server への接続エラーが表示されますが、別途構築した SQ
 
 ![自動更新](./image/sync-with-webhook.png)
 
+## SQL Database へデータを格納
 
-### SQL Database の接続文字列を設定
+### クエリエディタからデータ投入
 
-### 動作確認
+Azure ポータルから SQL Database の クエリエディターを開きます。ログインボタンを押下して、構築時に入力した管理者情報を入力すると Azure ポータルから直接 SQL を発行できるようになります。
 
-この時点ではエラー
+![テーブル作成とデータ投入](./image/create-insert-data.png)
 
-## SQL Database へのデプロイ
 
-### テーブルとデータの投入
+クエリウィンドウ内で実行するクエリもソースコードレポジトリに含まれていますので、そちらからコピーしてください。
 
-### ファイアーウォールの構成
+```
+/source/DemoData/employee-table.sql
+```
+
+実行結果が分かりやすくなるように INSERT 文を若干加工してご自身の名前などを入れておくと良いでしょう。
+
+### データベース接続文字列の確認
+
+Azure ポータルで SQL Database の概要画面に戻り、データベース接続文字列を表示します。
+
+![SQL接続文字列](./image/connection-string.png)
+
+以下のような ADO.NET 用の接続文字列のテンプレートが表示されますので、構築時に入力した管理者情報で `User ID` と `Password` を置き換えた文字列を作成します。（実際には改行はありません）
+
+```
+Server=tcp:demo0904svr.database.windows.net,1433;
+    Initial Catalog=demo0904db;
+    Persist Security Info=False;
+    User ID={your_username};
+    Password={your_password};
+    MultipleActiveResultSets=False;
+    Encrypt=True;TrustServerCertificate=False;
+    Connection Timeout=30;
+```
 
 ## 最終確認
 
+SQL Database 側の準備が整ったので、Web App 側で接続文字列を変更してやる必要があります。
+
+Azure ポータルで Web App の 'アプリケーション設定' 画面を表示します。接続文字列を入力するセクションまでスクロールし、`Connection1` という名前で前述の接続文字列を追加します。
+
+![接続文字列の設定](./image/constr-setting.png)
+
+接続文字列を追加して保存した後、改めてアプリケーションの画面を開くと、SQL 接続エラーではなく SQL Database に登録したデータが表示されることが確認できます。
+
+![正常な Web アプリの画面](./image/web-app-success.png)
+
+
+
 業務データが表示される
 
-### CI/CD の確認
 
 
 ## 後片付け
