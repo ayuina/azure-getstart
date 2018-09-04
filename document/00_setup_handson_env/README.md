@@ -4,7 +4,12 @@
 
 ## 前提環境
 
-Windows 10 クライアントをご用意ください。
+ハンズオン参加者はご自身の Windows 10 クライアントをご用意ください。本ドキュメントの作成および環境確認には Windows 10 April 2018 Update (Version 1803) を使用しています。
+![Win10バージョン](./image/system-info.png)
+
+リリースバージョンの詳細については
+[こちら](https://www.microsoft.com/ja-jp/itpro/windows-10/release-information)
+をご参照ください。
 
 
 ## Linux シェル環境 のインストール
@@ -28,7 +33,7 @@ Windows 10 クライアントをご用意ください。
 
 ![Ubuntu のインストール](./image/install-ubuntu.png)
 
-インストール完了後に Ubuntu を起動すると、管理者のユーザー名とパスワードを入力してください。
+インストール完了後に Ubuntu を起動すると、管理者のユーザー名とパスワを入力してください。
 
 ### 補足
 より詳細な手順が必要な場合は
@@ -47,7 +52,7 @@ Windows 10 クライアントをご用意ください。
 
 ![Git Version](./image/git-installed.png)
 
-VSCおｄ
+
 ### ハンズオン資源のダウンロード
 
 ハンズオン資源一式はローカルにダウンロードしておくとよいでしょう。PowerShell やコマンドプロンプトでデスクトップ等の作業フォルダに移動し、以下のコマンドを実行します。
@@ -64,6 +69,32 @@ Clone コマンドの完了後、リポジトリ名のサブディレクトリ�
 インストール方法、Git コマンド、GitHub についてより詳細な手順や解説が必要な場合は
 [こちら](http://www.atmarkit.co.jp/ait/articles/1603/31/news026.html)
 などが参考になるでしょう。
+
+
+## アプリケーションランタイムおよび SDK のインストール
+
+サンプルコードは ASP.NET Core アプリケーションとして作成されています。
+このためサンプルコードのビルドおよび実行には 
+[.NET Core SDK](https://www.microsoft.com/net/download)
+ が必要です。
+
+![.NET Core SDKのインストール](./image/install-dotnetcore.png)
+
+
+### サンプルアプリケーションの実行
+
+ソースコードレポジトリ配下の以下のディレクトリに ASP.NET Core で作成された Web アプリケーションのソースコードが配置されています。
+
+```
+/source/DemoApps/WebApplication1
+```
+
+PowerShell のカレントディレクトリを上記まで移動して `dotnet run` コマンドを実行することで Web アプリケーションが開始します。
+出力テキスト内に Web アプリケーションが待機する URL が表示されていますので、ブラウザでアクセスして確認してみましょう。
+
+![サンプルアプリのローカル実行](./image/run-webapp-local.png)
+
+データベースを構築していませんので、SQL エラーが出ていることは問題ありません。
 
 ## コンテナ環境のインストール
 
