@@ -40,15 +40,51 @@ Windows 10 クライアントをご用意ください。
 
 ハンズオンで使用する手順書やアプリケーションのソースコードは GitHub に格納されていますので、
 [Git for Windows](https://gitforwindows.org/) 
-をインストールします。
+をインストールしておくと便利です。
 インストールウィザードで表示される選択肢は全て既定のオプションで構いません。
 
 インストールが完了したら PowerShell やコマンドプロンプトから Git コマンドが実行できることを確認します。
 
 ![Git Version](./image/git-installed.png)
 
-### 補足
-より詳細な手順が必要な場合は
-[こちら](http://www.atmarkit.co.jp/ait/articles/1603/31/news026.html)
-などをご参照ください。
+VSCおｄ
+### ハンズオン資源のダウンロード
 
+ハンズオン資源一式はローカルにダウンロードしておくとよいでしょう。PowerShell やコマンドプロンプトでデスクトップ等の作業フォルダに移動し、以下のコマンドを実行します。
+
+```
+PS > git clone https://github.com/ayuina/azure-getstart
+```
+
+Clone コマンドの完了後、リポジトリ名のサブディレクトリの中身を確認してダウンロードされていることを確認します。
+
+![リポジトリのクローン](./image/git-clone.png)
+
+### 補足
+インストール方法、Git コマンド、GitHub についてより詳細な手順や解説が必要な場合は
+[こちら](http://www.atmarkit.co.jp/ait/articles/1603/31/news026.html)
+などが参考になるでしょう。
+
+## コンテナ環境のインストール
+
+サンプルアプリケーションを Docker コンテナ上で動作させることも出来ますので、
+[Docker for Windows](https://docs.docker.com/docker-for-windows/)
+もインストールしておくと良いでしょう。
+
+
+
+## 統合開発環境のインストール
+
+ハンズオンでは基本的にアプリケーションのソースコードそのものは扱いませんが、ファイルの参照や修正のためにテキストエディタがあると良いでしょう。
+ここでは
+[Visual Studio Code](https://code.visualstudio.com/)
+ を利用することにします。
+
+![VSCodeのインストール](./image/install-code.png)
+
+インストールオプションは既定値のままでも構いませんが、Windows エクスプローラでファイルやフォルダのコンテキストメニューから VSCode で開けるようにしておくと便利です。
+
+先ほど GitHub レポジトリからクローンしたフォルダを VSCode で開くと以下のようになります。
+![VSCodeで開く](./image/open-repo-with-code.png)
+
+VSCode の統合ターミナルを開くと PowerShell が使用でき、そこからこれまでインストールしてきた  Bash、Git、Docker を起動することが可能になります。
