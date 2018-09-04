@@ -131,4 +131,4 @@ PowerShell で当該ディレクトリを開き以下のコマンドを実行す
 先ほど GitHub レポジトリからクローンしたフォルダを VSCode で開くと以下のようになります。
 ![VSCodeで開く](./image/open-repo-with-code.png)
 
-VSCode の統合ターミナルを開くと PowerShell が使用でき、そこからこれまでインストールしてきた  Bash、Git、Docker を起動することが可能になります。
+VSCode の統合ターミナルを開くと PowerShell が使用でき、そこからこれまでインストールしてきた  Bash、Git、.NET Core、Docker などといったツールを起動することが可能になります。
