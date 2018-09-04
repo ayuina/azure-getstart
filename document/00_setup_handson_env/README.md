@@ -96,12 +96,25 @@ PowerShell のカレントディレクトリを上記まで移動して `dotnet 
 
 データベースを構築していませんので、SQL エラーが出ていることは問題ありません。
 
+
 ## コンテナ環境のインストール
 
 サンプルアプリケーションを Docker コンテナ上で動作させることも出来ますので、
 [Docker for Windows](https://docs.docker.com/docker-for-windows/)
 もインストールしておくと良いでしょう。
 
+
+### コンテナアプリの実行
+
+サンプルアプリケーションから Docker イメージを作成するための Dockerfile が本レポジトリないの下記ディレクトリに格納してあります。
+
+```
+/deploy/linux/container
+```
+
+PowerShell で当該ディレクトリを開き以下のコマンドを実行すると Linux コンテナ内でアプリケーションを実行することが出来ます。
+
+![サンプルアプリのコンテナ実行](./image/run-webapp-docker.png)
 
 
 ## 統合開発環境のインストール
