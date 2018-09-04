@@ -2,6 +2,7 @@
 
 ## 目次
 
-- [Azure IaaS で作る Web+DB システム](./01_develop_webdb_on_iaas/README.md)
-- [Azure PaaS で作る Web+DB システム](./02_develop_webdb_on_paas/README.md)
+- [ハンズオン環境の構築](./00_setup_handson_env)
+- [Azure IaaS で作る Web+DB システム](./01_develop_webdb_on_iaas)
+- [Azure PaaS で作る Web+DB システム](./02_develop_webdb_on_paas)
 
