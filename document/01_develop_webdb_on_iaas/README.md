@@ -154,6 +154,8 @@ PS > start http://localhost
 [こちら](https://www.microsoft.com/net/download/dotnet-core/runtime-2.0.7)
 から v2.0.7 の Windows 版 ASP.NET Core Runtime & Hosting Bundle をダウンロードおよびインストールします。
 
+![Instal ASP.NET Core](./image/install-dotnetcore.png)
+
 インストールが完了したら念のため IIS を再起動しておきましょう。
 ```
 PS > iisreset
