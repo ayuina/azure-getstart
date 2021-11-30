@@ -30,7 +30,7 @@ jobs:
       run: dotnet publish -o ./publish
 
     - name: Archive Content
-      run: zip -r "./publish/${GITHUB_RUN_ID}.zip" ./publish
+      run: zip -r "./publish/${GITHUB_RUN_ID}.zip" ./publish/*
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
