@@ -2,9 +2,4 @@
 # この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
 ################################################################################
 
-/source/DemoApps/.vs/DemoApps/v15
-/source/DemoApps/WebApplication1/bin
-/source/DemoApps/WebApplication1/obj
-/deploy/windows/local/publish
-
 /**/~$*.pptx
