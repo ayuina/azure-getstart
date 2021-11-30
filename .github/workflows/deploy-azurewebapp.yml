@@ -14,13 +14,26 @@ jobs:
         working-directory: source/DemoApps
     steps:
     - uses: actions/checkout@v2
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.100
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
       run: dotnet build --no-restore
+
     - name: Pulish Content
-      run: dotnet publish -o ./publish
+      run: |
+        env
+        dotnet publish -o ./publish
+        zip -r "./publish/${GITHUB_RUN_ID}.zip" ./publish
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: myapp
+        path: ./publish/*.zip
