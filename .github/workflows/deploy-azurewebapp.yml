@@ -26,11 +26,11 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    - name: Pulish Content
-      run: |
-        env
-        dotnet publish -o ./publish
-        zip -r "./publish/${GITHUB_RUN_ID}.zip" ./publish
+    - name: Pulish ASP.NET
+      run: dotnet publish -o ./publish
+
+    - name: Archive Content
+      run: zip -r "./publish/${GITHUB_RUN_ID}.zip" ./publish
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
