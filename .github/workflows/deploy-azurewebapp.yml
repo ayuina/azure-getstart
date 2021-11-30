@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: myapp
-        path: ./publish/*.zip
+        path: source/DemoApps/publish/*.zip
