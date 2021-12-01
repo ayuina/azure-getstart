@@ -8,6 +8,8 @@ on:
 
 env:
   artifact_name: myapp
+  app_package: ${GITHUB_RUN_ID}.zip
+  appservice_name: ainaba-demo1130
 
 jobs:
   build:
@@ -33,13 +35,13 @@ jobs:
       run: |
         dotnet publish -o ./publish
         cd ./publish
-        zip -r "./${GITHUB_RUN_ID}.zip" .
+        zip -r ../${{ env.app_package }} .
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.artifact_name }}
-        path: source/DemoApps/publish/*.zip
+        path: source/DemoApps/${{ env.app_package }}
 
   deploy:
     needs: [ build ]
@@ -50,6 +52,17 @@ jobs:
       uses: actions/download-artifact@v2
       with: 
         name: ${{ env.artifact_name }}
-        
+
     - name: Check Artifact
       run: ls -la
+
+    - name: Azure Login with Credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy zip to Azure App service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.appservice_name }}
+        package: 
