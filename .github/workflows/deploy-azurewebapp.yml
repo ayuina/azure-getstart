@@ -8,7 +8,7 @@ on:
 
 env:
   artifact_name: myapp
-  app_package: ${GITHUB_RUN_ID}.zip
+  app_package: ${{github.run_id}}.zip
   appservice_name: ainaba-demo1130
 
 jobs:
@@ -32,8 +32,10 @@ jobs:
       run: dotnet build --no-restore
 
     - name: Pulish ASP.NET Core
+      run: dotnet publish -o ./publish
+    
+    - name: Zip published artifacts
       run: |
-        dotnet publish -o ./publish
         cd ./publish
         zip -r ../${{ env.app_package }} .
     
