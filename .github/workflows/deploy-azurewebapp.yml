@@ -2,7 +2,7 @@ name: Deploy ASP.NET Core web application to Azure
 
 on:
   push:
-    branches: [ master, deploy-actions ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -10,15 +10,20 @@ env:
   artifact_name: myapp
   app_package: ${{github.run_id}}.zip
   appservice_name: ainaba-demo1130
+  app_src_dir: "source/DemoApps"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: source/DemoApps
+        working-directory: ${{app_src_dir}}
     steps:
-    - uses: actions/checkout@v2
+    - name: Check Env
+      run: env
+
+    - name: Checkout source
+      uses: actions/checkout@v2
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -28,10 +33,10 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
+    - name: Build ASP.NET Core application
       run: dotnet build --no-restore
 
-    - name: Pulish ASP.NET Core
+    - name: Pulish ASP.NET Core application
       run: dotnet publish -o ./publish
     
     - name: Zip published artifacts
@@ -43,10 +48,11 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.artifact_name }}
-        path: source/DemoApps/${{ env.app_package }}
+        path: ${{ app_src_dir }}/${{ env.app_package }}
 
   deploy:
     needs: [ build ]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
 
