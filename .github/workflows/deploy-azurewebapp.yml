@@ -20,7 +20,9 @@ jobs:
         working-directory: ${{env.app_src_dir}}
     steps:
     - name: Check Env
-      run: env
+      run: |
+        pwd
+        env
 
     - name: Checkout source
       uses: actions/checkout@v2
