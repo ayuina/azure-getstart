@@ -44,13 +44,12 @@ jobs:
   deploy:
     needs: [ build ]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: source/DemoApps
     steps:
+
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with: 
         name: ${{ env.artifact_name }}
+        
     - name: Check Artifact
       run: ls -la
