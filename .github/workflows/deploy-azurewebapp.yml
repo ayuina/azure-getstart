@@ -65,4 +65,4 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.appservice_name }}
-        package: 
+        package: ${{ env.app_package }}
