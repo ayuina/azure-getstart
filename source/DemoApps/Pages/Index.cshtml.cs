@@ -3,65 +3,67 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 
-namespace DemoApps.Pages;
-
-public class IndexModel : PageModel
+namespace DemoApps.Pages
 {
-    private readonly ILogger<IndexModel> _logger;
-    private readonly IConfiguration _config;
-
-    public IndexModel(ILogger<IndexModel> logger, IConfiguration config)
+    public class IndexModel : PageModel
     {
-        this._logger = logger;
-        this._config = config;
-    }
+        private readonly ILogger<IndexModel> _logger;
+        private readonly IConfiguration _config;
 
-    public List<Employee>? Employees {get; private set;}
-    public void OnGet()
-    {
-        this.Employees = this.GetFromDatabase();
-    }
-
-    private List<Employee> GetFromDatabase()
-    {
-        var ret = new List<Employee>();
-        string constr = this._config.GetConnectionString("connection1");
-        using (var con = new SqlConnection(constr))
+        public IndexModel(ILogger<IndexModel> logger, IConfiguration config)
         {
-            using (var cmd = con.CreateCommand())
-            {
-                cmd.CommandText = "select * from employee";
+            this._logger = logger;
+            this._config = config;
+        }
 
-                con.Open();
-                try
+        public List<Employee>? Employees { get; private set; }
+        public void OnGet()
+        {
+            this.Employees = this.GetFromDatabase();
+        }
+
+        private List<Employee> GetFromDatabase()
+        {
+            var ret = new List<Employee>();
+            string constr = this._config.GetConnectionString("connection1");
+            using (var con = new SqlConnection(constr))
+            {
+                using (var cmd = con.CreateCommand())
                 {
-                    using (var reader = cmd.ExecuteReader())
+                    cmd.CommandText = "select * from employee";
+
+                    con.Open();
+                    try
                     {
-                        while (reader.Read())
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            ret.Add(new Employee()
+                            while (reader.Read())
                             {
-                                EmployeeId = reader.GetInt32(reader.GetOrdinal("employeeid")),
-                                Firstname = reader.GetString(reader.GetOrdinal("firstname")),
-                                Lastname = reader.GetString(reader.GetOrdinal("lastname"))
-                            });
+                                ret.Add(new Employee()
+                                {
+                                    EmployeeId = reader.GetInt32(reader.GetOrdinal("employeeid")),
+                                    Firstname = reader.GetString(reader.GetOrdinal("firstname")),
+                                    Lastname = reader.GetString(reader.GetOrdinal("lastname"))
+                                });
+                            }
                         }
                     }
-                }
-                finally
-                {
-                    con.Close();
-                }
+                    finally
+                    {
+                        con.Close();
+                    }
 
+                }
             }
+            return ret;
         }
-        return ret;
     }
-}
 
-public class Employee
-{
-    public int EmployeeId { get; set; }
-    public string Firstname { get; set; }
-    public string Lastname { get; set; }
+    public class Employee
+    {
+        public int EmployeeId { get; set; }
+        public string Firstname { get; set; } = null!;
+        public string Lastname { get; set; }= null!;
+    }
+
 }
