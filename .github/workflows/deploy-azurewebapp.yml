@@ -9,7 +9,7 @@ on:
 env:
   artifact_name: myapp
   app_package: ${{github.run_id}}.zip
-  appservice_name: ainaba-demo1130
+  appservice_name: ${{ secrets.AZURE_APPSERVICE_NAME }}
   app_src_dir: "source/DemoApps"
 
 jobs:
@@ -72,3 +72,6 @@ jobs:
       with:
         app-name: ${{ env.appservice_name }}
         package: ${{ env.app_package }}
+
+    - name: Logout
+      run: az logout
