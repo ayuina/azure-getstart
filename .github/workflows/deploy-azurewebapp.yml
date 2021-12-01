@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{app_src_dir}}
+        working-directory: ${{env.app_src_dir}}
     steps:
     - name: Check Env
       run: env
@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.artifact_name }}
-        path: ${{ app_src_dir }}/${{ env.app_package }}
+        path: ${{ env.app_src_dir }}/${{ env.app_package }}
 
   deploy:
     needs: [ build ]
