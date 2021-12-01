@@ -1,0 +1,74 @@
+name: Deploy ASP.NET Core web application to Azure 
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  artifact_name: myapp
+  app_package: ${{github.run_id}}.zip
+  appservice_name: ainaba-demo1130
+  app_src_dir: "source/DemoApps"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{env.app_src_dir}}
+    steps:
+
+    - name: Checkout source
+      uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build ASP.NET Core application
+      run: dotnet build --no-restore
+
+    - name: Pulish ASP.NET Core application
+      run: dotnet publish -o ./publish
+    
+    - name: Zip published artifacts
+      run: |
+        cd ./publish
+        zip -r ../${{ env.app_package }} .
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.artifact_name }}
+        path: ${{ env.app_src_dir }}/${{ env.app_package }}
+
+  deploy:
+    needs: [ build ]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.artifact_name }}
+
+    - name: Check Artifact
+      run: ls -la
+
+    - name: Azure Login with Credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy zip to Azure App service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.appservice_name }}
+        package: ${{ env.app_package }}
