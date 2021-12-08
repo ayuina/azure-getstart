@@ -38,7 +38,7 @@ jobs:
       with:
         inlineScript: |
           #!/bin/bash
-          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }} --tags environment=${{matrix.environment}}
+          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }} --tags environment=${{matrix.environment}} secret=${{secrets.AZURE_SQLDB_PASSWORD}}
 
     - name: Deployment resource manager template
       uses: azure/arm-deploy@v1
