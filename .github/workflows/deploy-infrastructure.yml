@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [test, prod]
         include:
           - environment: test
             webworker: 1
