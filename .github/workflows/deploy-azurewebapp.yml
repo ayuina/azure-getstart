@@ -18,7 +18,7 @@ env:
   app_artifact_name: myapp
   data_src_dir: "source/DemoData"
   data_artifact_name: mydata
-  
+  data_script: employee-table.sql
 
 jobs:
   build:
@@ -115,7 +115,7 @@ jobs:
       with:
         server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net
         connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net,1433;Database=${{ secrets.DEPLOY_PREFIX }}-sqldb;User ID=${{secrets.DEPLOY_PREFIX}};Password=${{secrets.AZURE_SQLDB_PASSWORD}}"
-        sql-file: employee-table.sql
+        sql-file: ${{env.data_script}}
 
     - name: Logout
       run: az logout
