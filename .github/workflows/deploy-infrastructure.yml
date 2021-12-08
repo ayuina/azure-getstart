@@ -8,7 +8,7 @@ on:
         default: 'japanwest'
 
 env:
-  resource_group: ${{ github.event.inputs.prefix }}-rg
+  resource_group: ${{ secrets.DEPLOY_PREFIX }}-rg
 
 jobs:
   deploy_infra:
