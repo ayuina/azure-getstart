@@ -18,7 +18,7 @@ env:
   app_artifact_name: myapp
   data_src_dir: "source/DemoData"
   data_artifact_name: mydata
-  appservice_name: ${{ secrets.AZURE_APPSERVICE_NAME }}
+  
 
 jobs:
   build:
@@ -63,7 +63,7 @@ jobs:
         name: ${{ env.data_artifact_name }}
         path: ${{ env.data_src_dir}}/*.sql
 
-  deploy:
+  deploy-webapp:
     needs: [ build ]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
@@ -73,6 +73,29 @@ jobs:
       uses: actions/download-artifact@v2
       with: 
         name: ${{ env.app_artifact_name }}
+
+    - name: Check Artifact
+      run: ls -la
+
+    - name: Azure Login with Credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy zip to Azure App service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.DEPLOY_PREFIX }}-webapp
+        package: ${{ env.app_package }}
+
+    - name: Logout
+      run: az logout
+
+  deploy-sqldb:
+    needs: [ build ]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: windows-latest
+    steps:
 
     - name: Download Data Artifact
       uses: actions/download-artifact@v2
@@ -87,11 +110,12 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy zip to Azure App service
-      uses: azure/webapps-deploy@v2
+    - name: Create SQL Table and data
+      uses: azure/sql-action@v1
       with:
-        app-name: ${{ env.appservice_name }}
-        package: ${{ env.app_package }}
+        server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net
+        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net,1433;Database=${{ secrets.DEPLOY_PREFIX }}-sqldb;User ID=${{secrets.DEPLOY_PREFIX}};Password=${{AZURE_SQLDB_PASSWORD}}"
+        sql-file: employee-table.sql
 
     - name: Logout
       run: az logout

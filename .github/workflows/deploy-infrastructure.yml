@@ -3,9 +3,6 @@ name: Deploy Azure Resources
 on:
   workflow_dispatch:
     inputs:
-      prefix: 
-        required: true
-        default: 'demo'
       location:
         required: true
         default: 'japanwest'
@@ -38,4 +35,4 @@ jobs:
       with:
         resourceGroupName: ${{ env.resource_group }}
         template: ./source/arm/armtemplate.json
-        parameters: prefix=${{github.event.inputs.prefix}} location=${{github.event.inputs.location}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}}
+        parameters: prefix=${{secrets.DEPLOY_PREFIX}} location=${{github.event.inputs.location}} sqlUsername=${{secrets.DEPLOY_PREFIX}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}}
