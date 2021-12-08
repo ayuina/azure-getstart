@@ -13,17 +13,16 @@ on:
       - 'source/arm/**'
 
 env:
-  artifact_name: myapp
-  app_package: ${{github.run_id}}.zip
-  appservice_name: ${{ secrets.AZURE_APPSERVICE_NAME }}
   app_src_dir: "source/DemoApps"
+  app_package: ${{github.run_id}}.zip
+  app_artifact_name: myapp
+  data_src_dir: "source/DemoData"
+  data_artifact_name: mydata
+  appservice_name: ${{ secrets.AZURE_APPSERVICE_NAME }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{env.app_src_dir}}
     steps:
 
     - name: Checkout source
@@ -36,23 +35,33 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: ${{env.app_src_dir}}
 
     - name: Build ASP.NET Core application
       run: dotnet build --no-restore
+      working-directory: ${{env.app_src_dir}}
 
     - name: Pulish ASP.NET Core application
       run: dotnet publish -o ./publish
+      working-directory: ${{env.app_src_dir}}
     
     - name: Zip published artifacts
       run: |
         cd ./publish
         zip -r ../${{ env.app_package }} .
+      working-directory: ${{env.app_src_dir}}
     
-    - name: Upload artifacts
+    - name: Upload app artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.artifact_name }}
+        name: ${{ env.app_artifact_name }}
         path: ${{ env.app_src_dir }}/${{ env.app_package }}
+
+    - name: Upload data artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.data_artifact_name }}
+        path: ${{ env.data_src_dir}}/*.sql
 
   deploy:
     needs: [ build ]
@@ -60,10 +69,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Download Artifact
+    - name: Download Application Artifact
       uses: actions/download-artifact@v2
       with: 
-        name: ${{ env.artifact_name }}
+        name: ${{ env.app_artifact_name }}
+
+    - name: Download Data Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.data_artifact_name }}
 
     - name: Check Artifact
       run: ls -la
