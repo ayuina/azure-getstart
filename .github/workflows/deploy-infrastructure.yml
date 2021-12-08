@@ -8,9 +8,19 @@ on:
         default: 'japanwest'
 
 jobs:
-  deploy-test-env:
+  deploy-infra:
     runs-on: ubuntu-latest
-    environment: test
+    strategy:
+      matrix:
+        environment: [test, prod]
+        include:
+          - environment: test
+            webworker: 1
+            sqldb: GP_S_Gen5_1
+          - environment: prod
+            webworker: 2
+            sqldb: GP_S_Gen5_2
+    environment: ${{ matrix.environment }}
     env:
       resource_group: ${{ secrets.DEPLOY_PREFIX }}-rg
     steps:
@@ -28,40 +38,12 @@ jobs:
       with:
         inlineScript: |
           #!/bin/bash
-          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }}
+          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }} --tags environment=${{matrix.environment}}
 
     - name: Deployment resource manager template
       uses: azure/arm-deploy@v1
       with:
         resourceGroupName: ${{ env.resource_group }}
         template: ./source/arm/armtemplate.json
-        parameters: prefix=${{secrets.DEPLOY_PREFIX}} location=${{github.event.inputs.location}} sqlUsername=${{secrets.DEPLOY_PREFIX}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}}
+        parameters: prefix=${{secrets.DEPLOY_PREFIX}} location=${{github.event.inputs.location}} webserverInstanceCount=${{matrix.webworker}} sqlServerlessSku=${{matrix.sqldb}} sqlUsername=${{secrets.DEPLOY_PREFIX}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}} 
 
-  deploy-prod-env:
-    runs-on: ubuntu-latest
-    environment: prod
-    env:
-      resource_group: ${{ secrets.DEPLOY_PREFIX }}-rg
-    steps:
-
-    - name: Checkout source
-      uses: actions/checkout@v2
-
-    - name: Azure Login with Credentials
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Create resource group if not exists
-      uses: Azure/CLI@v1
-      with:
-        inlineScript: |
-          #!/bin/bash
-          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }}
-
-    - name: Deployment resource manager template
-      uses: azure/arm-deploy@v1
-      with:
-        resourceGroupName: ${{ env.resource_group }}
-        template: ./source/arm/armtemplate.json
-        parameters: prefix=${{secrets.DEPLOY_PREFIX}} location=${{github.event.inputs.location}} sqlUsername=${{secrets.DEPLOY_PREFIX}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}}
