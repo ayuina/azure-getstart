@@ -75,7 +75,7 @@ jobs:
         name: ${{ env.app_artifact_name }}
 
     - name: Check Artifact
-      run: ls -la
+      run: dir
 
     - name: Azure Login with Credentials
       uses: azure/login@v1
