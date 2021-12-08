@@ -114,7 +114,7 @@ jobs:
       uses: azure/sql-action@v1
       with:
         server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net
-        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net,1433; Database=${{ secrets.DEPLOY_PREFIX }}-sqldb; User Id=${{ secrets.DEPLOY_PREFIX }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
+        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net,1433; Initial Catalog=${{ secrets.DEPLOY_PREFIX }}-sqldb; User Id=${{ secrets.DEPLOY_PREFIX }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
         sql-file: ${{env.data_script}}
 
     - name: Logout
