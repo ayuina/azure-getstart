@@ -114,7 +114,7 @@ jobs:
       uses: azure/sql-action@v1
       with:
         server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net
-        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net,1433;Database=${{ secrets.DEPLOY_PREFIX }}-sqldb;User ID=${{secrets.DEPLOY_PREFIX}};Password=${{AZURE_SQLDB_PASSWORD}}"
+        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.windows.net,1433;Database=${{ secrets.DEPLOY_PREFIX }}-sqldb;User ID=${{secrets.DEPLOY_PREFIX}};Password=${{secrets.AZURE_SQLDB_PASSWORD}}"
         sql-file: employee-table.sql
 
     - name: Logout
