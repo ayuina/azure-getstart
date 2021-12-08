@@ -2,9 +2,15 @@ name: Deploy ASP.NET Core web application to Azure
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master 
+    paths-ignore: 
+      - 'source/arm/**'
   pull_request:
-    branches: [ master ]
+    branches:
+      - master 
+    paths-ignore:
+      - 'source/arm/**'
 
 env:
   artifact_name: myapp
