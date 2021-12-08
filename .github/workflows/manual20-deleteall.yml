@@ -1,0 +1,31 @@
+name: Manual Delete All resources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        environment: [test, prod]
+    environment: ${{matrix.environment}}
+    env:
+      resource_group: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-rg
+
+    steps:
+
+    - name: Azure Login with Credentials
+      uses: azure/actions/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Delete resource group 
+      uses: Azure/CLI@v1
+      with:
+        inlineScript: |
+          #!/bin/bash
+          az group create --name ${{ env.resource_group }} --yes
+
+    - name: Logout
+      run: az logout

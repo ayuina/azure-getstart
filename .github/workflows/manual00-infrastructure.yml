@@ -1,4 +1,4 @@
-name: Deploy Azure Resources
+name: Manual Deploy Azure Resources
 
 on:
   workflow_dispatch:
