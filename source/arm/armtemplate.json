@@ -139,7 +139,6 @@
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
                 "[resourceId('Microsoft.Web/sites', variables('websiteName'))]"
             ]
         }
