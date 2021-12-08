@@ -1,24 +1,21 @@
-name: Deploy ASP.NET Core web application to Azure 
+name: Deploy ASP.NET Core web application
 
 on:
   push:
     branches: 
       - master 
-    paths-ignore: 
-      - 'source/arm/**'
+    paths: 
+      - 'source/DemoApps/**'
   pull_request:
     branches:
       - master 
-    paths-ignore:
-      - 'source/arm/**'
+    paths: 
+      - 'source/DemoApps/**'
 
 env:
   app_src_dir: "source/DemoApps"
   app_package: ${{github.run_id}}.zip
   app_artifact_name: myapp
-  data_src_dir: "source/DemoData"
-  data_artifact_name: mydata
-  data_script: employee-table.sql
 
 jobs:
   build:
@@ -57,14 +54,8 @@ jobs:
         name: ${{ env.app_artifact_name }}
         path: ${{ env.app_src_dir }}/${{ env.app_package }}
 
-    - name: Upload data artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.data_artifact_name }}
-        path: ${{ env.data_src_dir}}/*.sql
-
   deploy-webapp:
-    needs: [ 'build', 'deploy-sqldb' ]
+    needs: [ 'build' ]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
@@ -91,31 +82,3 @@ jobs:
     - name: Logout
       run: az logout
 
-  deploy-sqldb:
-    needs: [ build ]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-    runs-on: windows-latest
-    steps:
-
-    - name: Download Data Artifact
-      uses: actions/download-artifact@v2
-      with: 
-        name: ${{ env.data_artifact_name }}
-
-    - name: Check Artifact
-      run: dir
-
-    - name: Azure Login with Credentials
-      uses: azure/actions/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Create SQL Table and data
-      uses: azure/sql-action@v1
-      with:
-        server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net
-        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net,1433; Initial Catalog=${{ secrets.DEPLOY_PREFIX }}-sqldb; User Id=${{ secrets.DEPLOY_PREFIX }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
-        sql-file: ${{env.data_script}}
-
-    - name: Logout
-      run: az logout

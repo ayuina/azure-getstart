@@ -1,0 +1,116 @@
+name: Deploy ASP.NET Core web application and SQL Database table and data
+
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        required: true
+        default: 'japanwest'
+
+env:
+  app_src_dir: "source/DemoApps"
+  app_package: ${{github.run_id}}.zip
+  app_artifact_name: myapp
+  data_src_dir: "source/DemoData"
+  data_artifact_name: mydata
+  data_script: employee-table.sql
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout source
+      uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ${{env.app_src_dir}}
+
+    - name: Build ASP.NET Core application
+      run: dotnet build --no-restore
+      working-directory: ${{env.app_src_dir}}
+
+    - name: Pulish ASP.NET Core application
+      run: dotnet publish -o ./publish
+      working-directory: ${{env.app_src_dir}}
+    
+    - name: Zip published artifacts
+      run: |
+        cd ./publish
+        zip -r ../${{ env.app_package }} .
+      working-directory: ${{env.app_src_dir}}
+    
+    - name: Upload app artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.app_artifact_name }}
+        path: ${{ env.app_src_dir }}/${{ env.app_package }}
+
+    - name: Upload data artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.data_artifact_name }}
+        path: ${{ env.data_src_dir}}/*.sql
+
+  deploy-webapp:
+    needs: [ 'build' ]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Download Application Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.app_artifact_name }}
+
+    - name: Check Artifact
+      run: ls -la
+
+    - name: Azure Login with Credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy zip to Azure App service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.DEPLOY_PREFIX }}-webapp
+        package: ${{ env.app_package }}
+
+    - name: Logout
+      run: az logout
+
+  deploy-sqldb:
+    needs: [ build ]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: windows-latest
+    steps:
+
+    - name: Download Data Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.data_artifact_name }}
+
+    - name: Check Artifact
+      run: dir
+
+    - name: Azure Login with Credentials
+      uses: azure/actions/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create SQL Table and data
+      uses: azure/sql-action@v1
+      with:
+        server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net
+        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net,1433; Initial Catalog=${{ secrets.DEPLOY_PREFIX }}-sqldb; User Id=${{ secrets.DEPLOY_PREFIX }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
+        sql-file: ${{env.data_script}}
+
+    - name: Logout
+      run: az logout
