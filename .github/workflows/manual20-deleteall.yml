@@ -25,7 +25,7 @@ jobs:
       with:
         inlineScript: |
           #!/bin/bash
-          az group create --name ${{ env.resource_group }} --yes
+          az group delete --name ${{ env.resource_group }} --yes
 
     - name: Logout
       run: az logout
