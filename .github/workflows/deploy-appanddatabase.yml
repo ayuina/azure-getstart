@@ -2,10 +2,6 @@ name: Deploy ASP.NET Core web application and SQL Database table and data
 
 on:
   workflow_dispatch:
-    inputs:
-      location:
-        required: true
-        default: 'japanwest'
 
 env:
   app_src_dir: "source/DemoApps"

@@ -76,7 +76,7 @@ jobs:
     - name: Deploy zip to Azure App service
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ secrets.DEPLOY_PREFIX }}-webapp
+        app-name: ${{ secrets.TARGET_WEBAPP }}
         package: ${{ env.app_package }}
 
     - name: Logout
