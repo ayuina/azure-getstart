@@ -57,6 +57,12 @@ jobs:
   deploy-webapp:
     needs: [ 'build' ]
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        environment: [test, prod]
+    environment: ${{matrix.environment}}
+    env:
+      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{matrix.environment}}
     steps:
 
     - name: Download Application Artifact
@@ -75,15 +81,24 @@ jobs:
     - name: Deploy zip to Azure App service
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ secrets.DEPLOY_PREFIX }}-webapp
+        app-name: ${{ env.prefix }}-webapp
         package: ${{ env.app_package }}
 
     - name: Logout
       run: az logout
 
+
   deploy-sqldb:
     needs: [ build ]
     runs-on: windows-latest
+    strategy:
+      matrix: 
+        environment: [test, prod]
+    environment: ${{matrix.environment}}
+    env:
+      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}
+      sqlserver: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
+
     steps:
 
     - name: Download Data Artifact
@@ -102,8 +117,8 @@ jobs:
     - name: Create SQL Table and data
       uses: azure/sql-action@v1
       with:
-        server-name: ${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net
-        connection-string: "Server=tcp:${{ secrets.DEPLOY_PREFIX }}-sqlsvr.database.windows.net,1433; Initial Catalog=${{ secrets.DEPLOY_PREFIX }}-sqldb; User Id=${{ secrets.DEPLOY_PREFIX }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
+        server-name: ${{env.sqlserver}}
+        connection-string: "Server=tcp:${{env.sqlserver}},1433; Initial Catalog=${{ env.prefix }}-sqldb; User Id=${{ env.prefix }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
         sql-file: ${{env.data_script}}
 
     - name: Logout
