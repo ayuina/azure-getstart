@@ -1,4 +1,4 @@
-name: Deploy ASP.NET Core web application and SQL Database table and data
+name: Deploy App and Data to Azure
 
 on:
   workflow_dispatch:
