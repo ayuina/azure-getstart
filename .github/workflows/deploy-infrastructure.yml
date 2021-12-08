@@ -21,7 +21,8 @@ jobs:
             sqldb: GP_S_Gen5_2
     environment: ${{ matrix.environment }}
     env:
-      resource_group: ${{ secrets.DEPLOY_PREFIX }}-rg
+      resource_group: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-rg
+      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}
     steps:
 
     - name: Checkout source
@@ -44,5 +45,5 @@ jobs:
       with:
         resourceGroupName: ${{ env.resource_group }}
         template: ./source/arm/armtemplate.json
-        parameters: prefix=${{secrets.DEPLOY_PREFIX}} location=${{github.event.inputs.location}} webserverInstanceCount=${{matrix.webworker}} sqlServerlessSku=${{matrix.sqldb}} sqlUsername=${{secrets.DEPLOY_PREFIX}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}} 
+        parameters: prefix=${{ env.prefix }} location=${{github.event.inputs.location}} webserverInstanceCount=${{matrix.webworker}} sqlServerlessSku=${{matrix.sqldb}} sqlUsername=${{env.prefix}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}} 
 
