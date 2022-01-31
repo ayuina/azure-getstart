@@ -63,7 +63,7 @@ namespace DemoApps.Pages
     {
         public int EmployeeId { get; set;}
         public string Firstname { get; set; } = null!;
-        public string Lastname { get; set; }= 1;
+        public string Lastname { get; set; }= "";
     }
 
 }
