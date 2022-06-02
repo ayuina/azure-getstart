@@ -1,4 +1,4 @@
-name: Manual Delete All resources
+name: OBSOLETE Manual Delete All resources
 
 on:
   workflow_dispatch:
