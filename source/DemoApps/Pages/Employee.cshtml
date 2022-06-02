@@ -1,0 +1,37 @@
+﻿@page
+@model EmployeeModel
+@{
+    ViewData["Title"] = "Accessing SQL";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div>
+    <h1>従業員テーブル</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>社員番号</th>
+                <th>名前</th>
+                <th>苗字</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Employees != null)
+            {
+                foreach (var item in Model.Employees)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.EmployeeId)</td>
+                        <td>@Html.DisplayFor(m => item.Firstname)</td>
+                        <td>@Html.DisplayFor(m => item.Lastname)</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+</div>
