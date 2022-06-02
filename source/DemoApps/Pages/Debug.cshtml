@@ -4,10 +4,6 @@
     ViewData["Title"] = "About";
 }
 <div>
-    <h2>現在の接続文字列</h2>
-    <h3>@Model.Message</h3>
-</div>
-<div>
     <h2>環境変数</h2>
     <table class="table">
         <thead>
@@ -28,4 +24,24 @@
         </tbody>
     </table>
 </div>
-<p>Use this area to provide additional information.</p>
+<div>
+    <h2>構成情報</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (string key in this.Model.ConfigSettings.Keys.OfType<string>().OrderBy(k => k))
+            {
+            <tr>
+                <td><span>@key</span></td>
+                <td><span>@(this.Model.ConfigSettings[key])</span></td>
+            </tr>
+
+            }
+        </tbody>
+    </table>
+</div>

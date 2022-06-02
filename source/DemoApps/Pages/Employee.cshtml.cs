@@ -25,7 +25,7 @@ namespace DemoApps.Pages
         private List<Employee> GetFromDatabase()
         {
             var ret = new List<Employee>();
-            string constr = this._config.GetConnectionString("connection1");
+            string constr = this._config[this._config["SqlDbConnectionStringKey"]];
             using (var con = new SqlConnection(constr))
             {
                 using (var cmd = con.CreateCommand())

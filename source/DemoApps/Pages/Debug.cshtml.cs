@@ -9,11 +9,11 @@ namespace DemoApps.Pages
 {
     public class DebugModel : PageModel
     {
-        public string Message { get; set; }
 
-        public DebugModel(IConfiguration config)
+        public Dictionary<string, string> ConfigSettings{get; private set;}
+        public DebugModel(IConfiguration _config)
         {
-            this.Message = config.GetConnectionString("connection1");
+            this.ConfigSettings = _config.AsEnumerable().ToDictionary(kvp => kvp.Key, kvp=> kvp.Value);
         }
 
         public void OnGet()
