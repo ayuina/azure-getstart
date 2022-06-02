@@ -80,7 +80,6 @@ jobs:
     env:
       resource_group: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}-rg
       prefix: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}
-
     steps:
     - name: Checkout source
       uses: actions/checkout@v2
