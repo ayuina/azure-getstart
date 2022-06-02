@@ -1,4 +1,4 @@
-name: [Obsolete]Deploy WebApp and SQL Database
+name: OBSOLETE Deploy WebApp and SQL Database
 
 on:
   workflow_dispatch:
