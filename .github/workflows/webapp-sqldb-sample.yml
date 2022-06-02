@@ -64,9 +64,9 @@ jobs:
         name: ${{ env.data_artifact_name }}
         path: ${{ env.data_src_dir}}/*.sql
         
-  deploy-infra:
+  deploy:
     needs: ['build']
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         include:
@@ -80,8 +80,8 @@ jobs:
     env:
       resource_group: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}-rg
       prefix: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}
-    steps:
 
+    steps:
     - name: Checkout source
       uses: actions/checkout@v2
 
@@ -96,7 +96,6 @@ jobs:
       uses: Azure/CLI@v1
       with:
         inlineScript: |
-          #!/bin/bash
           az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }} --tags environment=${{matrix.environment}} 
 
     - name: Deployment resource manager template
@@ -107,31 +106,10 @@ jobs:
         template: ./source/arm/armtemplate.json
         parameters: prefix=${{ env.prefix }} location=${{github.event.inputs.location}} webserverInstanceCount=${{matrix.webworker}} sqlServerlessSku=${{matrix.sqldb}} sqlUsername=${{env.prefix}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}} 
 
-    - name: Logout
-      run: az logout
-
-  deploy-webapp:
-    needs: [ 'build', 'deploy-infra' ]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        environment: [test, prod]
-    environment: ${{matrix.environment}}
-    env:
-      prefix: ${{ github.event.inputs.prefix }}-${{matrix.environment}}
-    steps:
-
     - name: Download Application Artifact
       uses: actions/download-artifact@v2
       with: 
         name: ${{ env.app_artifact_name }}
-
-    - name: 'Az CLI login with federation credential'
-      uses: azure/login@v1
-      with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Deploy zip to Azure App service
       uses: azure/webapps-deploy@v2
@@ -139,41 +117,17 @@ jobs:
         app-name: ${{ env.prefix }}-webapp
         package: ${{ env.app_package }}
 
-    - name: Logout
-      run: az logout
-
-  deploy-sqldb:
-    needs: [ 'build', 'deploy-infra' ]
-    runs-on: windows-latest
-    strategy:
-      matrix: 
-        environment: [test, prod]
-    environment: ${{matrix.environment}}
-    env:
-      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}
-      sqlserver: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
-
-    steps:
-
     - name: Download Data Artifact
       uses: actions/download-artifact@v2
       with: 
         name: ${{ env.data_artifact_name }}
 
-    - name: 'Az CLI login with federation credential'
-      uses: azure/login@v1
-      with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
     - name: Create SQL Table and data
       uses: azure/sql-action@v1
       with:
-        server-name: ${{env.sqlserver}}
+        server-name: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
         connection-string: "Server=tcp:${{env.sqlserver}},1433; Initial Catalog=${{ env.prefix }}-sqldb; User Id=${{ env.prefix }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
         sql-file: ${{env.data_script}}
 
     - name: Logout
       run: az logout
-
