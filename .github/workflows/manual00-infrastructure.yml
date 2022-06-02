@@ -9,7 +9,6 @@ on:
       prefix:
         required: true
         default: 'demoMMdd'
-
 permissions:
   id-token: write
   contents: read
