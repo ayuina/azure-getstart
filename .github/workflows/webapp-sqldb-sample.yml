@@ -1,0 +1,180 @@
+name: Deploy WebApp and SQL Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        required: true
+        default: 'japaneast'
+      prefix:
+        required: true
+        default: 'demoMMdd'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  app_src_dir: "source/DemoApps"
+  app_package: ${{github.run_id}}.zip
+  app_artifact_name: myapp
+  data_src_dir: "source/DemoData"
+  data_artifact_name: mydata
+  data_script: employee-table.sql
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{env.app_src_dir}}
+    steps:
+
+    - name: Checkout source
+      uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build ASP.NET Core application
+      run: dotnet build --no-restore
+
+    - name: Pulish ASP.NET Core application
+      run: dotnet publish -o ./publish
+
+    - name: Zip published artifacts
+      run: |
+        cd ./publish
+        zip -r ../${{ env.app_package }} .
+
+    - name: Upload app artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.app_artifact_name }}
+        path: ${{ env.app_src_dir }}/${{ env.app_package }}
+
+    - name: Upload data artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.data_artifact_name }}
+        path: ${{ env.data_src_dir}}/*.sql
+        
+  deploy-infra:
+    needs: ['build-app']
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - environment: test
+            webworker: 1
+            sqldb: GP_S_Gen5_1
+          - environment: prod
+            webworker: 2
+            sqldb: GP_S_Gen5_2
+    environment: ${{ matrix.environment }}
+    env:
+      resource_group: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}-rg
+      prefix: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}
+    steps:
+
+    - name: Checkout source
+      uses: actions/checkout@v2
+
+    - name: 'Az CLI login with federation credential'
+      uses: azure/login@v1
+      with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Create resource group if not exists
+      uses: Azure/CLI@v1
+      with:
+        inlineScript: |
+          #!/bin/bash
+          az group create --name ${{ env.resource_group }} --location ${{ github.event.inputs.location }} --tags environment=${{matrix.environment}} 
+
+    - name: Deployment resource manager template
+      uses: azure/arm-deploy@v1
+      with:
+        resourceGroupName: ${{ env.resource_group }}
+        deploymentName: GHA_ARM_DEPLOY_${{github.run_number}}
+        template: ./source/arm/armtemplate.json
+        parameters: prefix=${{ env.prefix }} location=${{github.event.inputs.location}} webserverInstanceCount=${{matrix.webworker}} sqlServerlessSku=${{matrix.sqldb}} sqlUsername=${{env.prefix}} sqlPassword=${{secrets.AZURE_SQLDB_PASSWORD}} 
+
+    - name: Logout
+      run: az logout
+
+  deploy-webapp:
+    needs: [ 'build-app', 'deploy-infra' ]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        environment: [test, prod]
+    environment: ${{matrix.environment}}
+    env:
+      prefix: ${{ github.event.inputs.prefix }}-${{matrix.environment}}
+    steps:
+
+    - name: Download Application Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.app_artifact_name }}
+
+    - name: 'Az CLI login with federation credential'
+      uses: azure/login@v1
+      with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Deploy zip to Azure App service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.prefix }}-webapp
+        package: ${{ env.app_package }}
+
+    - name: Logout
+      run: az logout
+
+
+  deploy-sqldb:
+    needs: [ build ]
+    runs-on: windows-latest
+    strategy:
+      matrix: 
+        environment: [test, prod]
+    environment: ${{matrix.environment}}
+    env:
+      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}
+      sqlserver: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
+
+    steps:
+
+    - name: Download Data Artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: ${{ env.data_artifact_name }}
+
+    - name: 'Az CLI login with federation credential'
+      uses: azure/login@v1
+      with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Create SQL Table and data
+      uses: azure/sql-action@v1
+      with:
+        server-name: ${{env.sqlserver}}
+        connection-string: "Server=tcp:${{env.sqlserver}},1433; Initial Catalog=${{ env.prefix }}-sqldb; User Id=${{ env.prefix }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
+        sql-file: ${{env.data_script}}
+
+    - name: Logout
+      run: az logout
+
