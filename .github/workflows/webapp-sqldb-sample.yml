@@ -65,7 +65,7 @@ jobs:
         path: ${{ env.data_src_dir}}/*.sql
         
   deploy-infra:
-    needs: ['build-app']
+    needs: ['build']
     runs-on: ubuntu-latest
     strategy:
       matrix:
