@@ -1,4 +1,4 @@
-name: Deploy WebApp and SQL Database
+name: Deploy WebApp and SQL Database service and application
 
 on:
   workflow_dispatch:

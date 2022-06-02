@@ -1,4 +1,4 @@
-name: Manual Deploy App and Data to Azure
+name: [Obsolete]Manual Deploy App and Data to Azure
 
 on:
   workflow_dispatch:
