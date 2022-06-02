@@ -1,0 +1,163 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefix": {
+            "type": "string",
+            "defaultValue": "prefix"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "japaneast"
+        },
+        "sqlUsername": {
+            "type": "string",
+            "defaultValue": "sqluser"
+        },
+        "sqlPassword": {
+            "type": "securestring"
+        },
+        "sqlServerlessSku": {
+            "type": "string",
+            "defaultValue": "GP_S_Gen5_1",
+            "allowedValues": [
+                "GP_S_Gen5_1",
+                "GP_S_Gen5_2",
+                "GP_S_Gen5_4",
+                "GP_S_Gen5_6",
+                "GP_S_Gen5_8"
+            ]
+        }
+    },
+    "variables": {
+        "storageAccountName": "[concat(parameters('prefix'), 'str')]",
+        "registryName": "[concat(parameters('prefix'), 'cr')]",
+        "logAnalyticsWorkspaceName": "[concat(parameters('prefix'), '-laws')]",
+        "appInsightsName": "[concat(parameters('prefix'), '-ai')]",
+        "containerAppEnvName": "[concat(parameters('prefix'), '-caenv')]",
+        "sqlServerName": "[concat(parameters('prefix'), '-sqlsvr')]",
+        "sqlDatabaseName": "[concat(parameters('prefix'), '-sqldb')]",
+        "sqlDatabaseSkuTier": "GeneralPurpose",
+        "sqlDatabaseSku": "[parameters('sqlServerlessSku')]",
+        "sqlServerFqdn": "[concat(variables('sqlServerName'), '.database.windows.net')]",
+        "sqlConnectionString": "[format('Server=tcp:{0},1433;Initial Catalog={1};User ID={2};Password={3}', variables('sqlServerFqdn'),variables('sqlDatabaseName'),parameters('sqlUsername'), parameters('sqlPassword'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2021-09-01",
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            }
+        },
+        {
+            "name": "[variables('registryName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "location": "[parameters('location')]",
+            "apiVersion": "2021-09-01",
+            "sku": {
+                "name": "Standard"
+            },
+            "dependsOn": [],
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "zoneRedundancy": "disabled"
+            }
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2021-06-01",
+            "name": "[variables('logAnalyticsWorkspaceName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "retentionInDays": 30,
+                "features": {
+                    "searchVersion": 1
+                },
+                "sku": {
+                    "name": "PerGB2018"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[variables('appInsightsName')]",
+            "location": "[parameters('location')]",
+            "kind": "web",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('logAnalyticsWorkspaceName'))]"
+            ],
+            "properties": {
+                "Application_Type": "web",
+                "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('logAnalyticsWorkspaceName'))]"
+            }
+        },
+        {
+            "type": "Microsoft.App/managedEnvironments",
+            "apiVersion": "2022-03-01",
+            "name": "[variables('containerAppEnvName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Insights/components/', variables('appInsightsName'))]"
+            ],
+            "properties": {
+                "daprAIInstrumentationKey": "[reference(resourceId('Microsoft.Insights/components/', variables('appInsightsName')), '2020-02-02').InstrumentationKey]",
+                "appLogsConfiguration": {
+                    "destination": "log-analytics",
+                    "logAnalyticsConfiguration": {
+                        "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', variables('logAnalyticsWorkspaceName')), '2021-06-01').customerId]",
+                        "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('logAnalyticsWorkspaceName')), '2021-06-01').primarySharedKey]"
+                    }
+                }
+            },
+            "resources": []
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2021-05-01-preview",
+            "name": "[variables('sqlServerName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "administratorLogin": "[parameters('sqlUsername')]",
+                "administratorLoginPassword": "[parameters('sqlPassword')]",
+                "version": "12.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2021-02-01-preview",
+            "name": "[concat(variables('sqlserverName'),'/',variables('sqlDatabaseName'))]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[variables('sqlDatabaseSku')]",
+                "tier": "[variables('sqlDatabaseSkuTier')]"
+            },
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 1073741824,
+                "autoPauseDelay": 60,
+                "minCapacity": 1
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2021-05-01-preview",
+            "name": "[concat(variables('sqlServerName'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        }
+    ]
+}
