@@ -23,7 +23,7 @@ env:
   data_script: employee-table.sql
 
 jobs:
-  build-app:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -111,7 +111,7 @@ jobs:
       run: az logout
 
   deploy-webapp:
-    needs: [ 'build-app', 'deploy-infra' ]
+    needs: [ 'build', 'deploy-infra' ]
     runs-on: ubuntu-latest
     strategy:
       matrix: 
@@ -142,9 +142,8 @@ jobs:
     - name: Logout
       run: az logout
 
-
   deploy-sqldb:
-    needs: [ build ]
+    needs: [ 'build', 'deploy-infra' ]
     runs-on: windows-latest
     strategy:
       matrix: 
