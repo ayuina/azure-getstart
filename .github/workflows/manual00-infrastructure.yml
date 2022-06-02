@@ -5,7 +5,10 @@ on:
     inputs:
       location:
         required: true
-        default: 'japanwest'
+        default: 'japaneast'
+      prefix:
+        required: true
+        default: 'demoMMdd'
 
 jobs:
   deploy-infra:
@@ -21,8 +24,8 @@ jobs:
             sqldb: GP_S_Gen5_2
     environment: ${{ matrix.environment }}
     env:
-      resource_group: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-rg
-      prefix: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}
+      resource_group: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}-rg
+      prefix: ${{ github.event.inputs.prefix }}-${{ matrix.environment }}
     steps:
 
     - name: Checkout source
