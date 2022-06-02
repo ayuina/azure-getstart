@@ -31,11 +31,13 @@ jobs:
     - name: Checkout source
       uses: actions/checkout@v2
 
-    - name: Azure Login with Credentials
+    - name: 'Az CLI login with federation credential'
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
     - name: Create resource group if not exists
       uses: Azure/CLI@v1
       with:
