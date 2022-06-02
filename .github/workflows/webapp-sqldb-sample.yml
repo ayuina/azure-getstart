@@ -122,12 +122,12 @@ jobs:
       with: 
         name: ${{ env.data_artifact_name }}
 
-    - name: Create SQL Table and data
-      uses: azure/sql-action@v1.3
-      with:
-        server-name: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
-        connection-string: "Server=tcp:${{env.sqlserver}},1433; Initial Catalog=${{ env.prefix }}-sqldb; User Id=${{ env.prefix }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
-        sql-file: ${{env.data_script}}
+    # - name: Create SQL Table and data
+    #   uses: azure/sql-action@v1.3
+    #   with:
+    #     server-name: ${{ secrets.DEPLOY_PREFIX }}-${{ matrix.environment }}-sqlsvr.database.windows.net
+    #     connection-string: "Server=tcp:${{env.sqlserver}},1433; Initial Catalog=${{ env.prefix }}-sqldb; User Id=${{ env.prefix }}; Password=${{ secrets.AZURE_SQLDB_PASSWORD }}"
+    #     sql-file: ${{env.data_script}}
 
     - name: Logout
       run: az logout
